@@ -1,0 +1,79 @@
+<Window x:Class="MonitorInputWizzard.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Monitor Input Wizzard" Height="360" Width="560"
+        WindowStartupLocation="CenterScreen" ResizeMode="CanMinimize">
+    <DockPanel Margin="12">
+        <StackPanel DockPanel.Dock="Top" Margin="0,0,0,8">
+            <DockPanel Margin="0,0,0,6">
+                <CheckBox x:Name="NvCheck" Content="NVIDIA I2C" VerticalAlignment="Center" Margin="0,0,12,0"
+                          Checked="NvMode_Changed" Unchecked="NvMode_Changed"
+                          ToolTip="Switch via NVAPI raw I2C (LG 0x50 sidechannel). Broadcasts to all displays; the monitor picker below is unused. Requires NVIDIA GPU."/>
+                <TextBlock Text="Src:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBox x:Name="SrcBox" Width="46" VerticalAlignment="Center" Margin="0,0,16,0"
+                         ToolTip="DDC/CI source address. LG sidechannel = 0x50; standard = 0x51."/>
+                <TextBlock Text="Input VCP:" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                <TextBox x:Name="InputRegBox" Width="46" VerticalAlignment="Center" HorizontalAlignment="Left"
+                         ToolTip="Register carrying input source. 0x60 = standard; LG UltraGear = 0xF4."/>
+            </DockPanel>
+            <DockPanel x:Name="MonitorRow"
+                       ToolTip="dxva2 features on the selected monitor. Unused while NVIDIA I2C is on.">
+                <TextBlock Text="Monitor:" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                <Button DockPanel.Dock="Right" Content="Refresh" Padding="10,3" Click="Refresh_Click"/>
+                <Button DockPanel.Dock="Right" Content="Test DDC" Padding="10,3" Margin="0,0,6,0"
+                        Click="Test_Click" ToolTip="Briefly dims brightness to prove DDC/CI writes reach the monitor."/>
+                <Button DockPanel.Dock="Right" Content="Read current" Padding="10,3" Margin="0,0,6,0"
+                        Click="Read_Click" ToolTip="Shows the monitor's current input VCP code — use it to find the right codes."/>
+                <ComboBox x:Name="MonitorBox" DisplayMemberPath="Description"
+                          SelectionChanged="Monitor_Changed"/>
+            </DockPanel>
+        </StackPanel>
+
+        <DockPanel DockPanel.Dock="Bottom" Margin="0,8,0,0">
+            <TextBlock x:Name="Status" VerticalAlignment="Center" Foreground="Gray"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <Button Content="Add input" Padding="10,3" Click="Add_Click"/>
+                <Button Content="Save" Padding="10,3" Margin="6,0,0,0" Click="Save_Click"/>
+            </StackPanel>
+        </DockPanel>
+
+        <ListView x:Name="InputList" BorderThickness="0">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn Header="Name" Width="150">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Width="140"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="VCP code" Width="70">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <TextBox Text="{Binding CodeHex, UpdateSourceTrigger=PropertyChanged}" BorderThickness="0" Width="60"/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="Hotkey" Width="150">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding HotkeyText}" Width="140" Padding="4,2"
+                                        Click="Hotkey_Click" ToolTip="Click, then press a key combo. Esc clears."/>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                    <GridViewColumn Header="" Width="120">
+                        <GridViewColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Button Content="Switch" Padding="8,2" Click="Switch_Click"/>
+                                    <Button Content="✕" Padding="6,2" Margin="6,0,0,0" Click="Remove_Click"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </GridViewColumn.CellTemplate>
+                    </GridViewColumn>
+                </GridView>
+            </ListView.View>
+        </ListView>
+    </DockPanel>
+</Window>
